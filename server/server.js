@@ -14,11 +14,9 @@ const server = http.createServer(app);
 // Setup Socket.IO
 export const io = new Server(server, {
   cors: {
-    origin: "https://chat-app-olive-omega.vercel.app",
-    credentials: true,
+    origin: "*",
   },
 });
-
 
 // store online users
 export const userSocketMap = {};
@@ -43,21 +41,7 @@ io.on("connection", (socket) => {
 
 // Middleware setup
 app.use(express.json({ limit: "4mb" }));
-const allowedOrigins = ["https://chat-app-olive-omega.vercel.app"];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true, // Optional, if you're using cookies/auth headers
-  })
-);
-
+app.use(cors());
 
 // routes setup
 app.use("/api/status", (req, res) => res.send("Server is live"));

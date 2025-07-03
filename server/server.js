@@ -11,29 +11,23 @@ import { Server } from "socket.io";
 const app = express();
 const server = http.createServer(app);
 
-const allowedOrigins = [
-  "http://localhost:5173", // local dev
-  "https://chat-app-olive-omega.vercel.app", // deployed frontend
-];
-
 // Setup Socket.IO
 export const io = new Server(server, {
-  cors: {
-    origin: allowedOrigins[1], // production frontend only
-    credentials: true,
-  },
+  cors: { origin: "*" },
 });
 
-// Store online users
+// store online users
 export const userSocketMap = {};
 
-// Socket.IO connection
+// socket.io connection handler
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
+
   console.log("user Connected ", userId);
 
   if (userId) userSocketMap[userId] = socket.id;
 
+  //  emit online users to all connected clents
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   socket.on("disconnect", () => {
@@ -45,34 +39,19 @@ io.on("connection", (socket) => {
 
 // Middleware setup
 app.use(express.json({ limit: "4mb" }));
+app.use(cors());
 
-// Fixed CORS
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
-
-// Routes
+// routes setup
 app.use("/api/status", (req, res) => res.send("Server is live"));
 app.use("/api/auth", userRouter);
 app.use("/api/messages", messageRouter);
 
-// Connect to MongoDB
+// connect to mongodb
 await connectDB();
 
-// Start server (non-production only; Vercel uses serverless handler)
 if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 5000;
-  server.listen(PORT, () => console.log("Server is running on port:", PORT));
+  server.listen(PORT, () => console.log("Server is running on port: ", PORT));
 }
 
-// Export for Vercel
 export default server;

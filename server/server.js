@@ -41,7 +41,18 @@ io.on("connection", (socket) => {
 
 // Middleware setup
 app.use(express.json({ limit: "4mb" }));
-app.use(cors());
+
+const allowedOrigins = [
+  "http://localhost:5173", // or whatever your local frontend port is
+  "https://chat-app-olive-omega.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
 // routes setup
 app.use("/api/status", (req, res) => res.send("Server is live"));

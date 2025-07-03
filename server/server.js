@@ -39,12 +39,7 @@ io.on("connection", (socket) => {
 
 // Middleware setup
 app.use(express.json({ limit: "4mb" }));
-app.use(
-  cors({
-    origin: "https://chat-app-olive-omega.vercel.app",
-    credentials: true,
-  })
-);
+app.use(cors());
 
 // routes setup
 app.use("/api/status", (req, res) => res.send("Server is live"));
@@ -59,4 +54,4 @@ if (process.env.NODE_ENV !== "production") {
   server.listen(PORT, () => console.log("Server is running on port: ", PORT));
 }
 
-export default app;
+export default server;

@@ -9,7 +9,8 @@ axios.defaults.baseURL = backendUrl;
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [token, setToken] = useState(localStorage.getItem("token"));
+
   const [authUser, setAuthUser] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [socket, setSocket] = useState(null);
@@ -17,7 +18,7 @@ export const AuthProvider = ({ children }) => {
   // check user is authenticaed
   const checkAuth = async () => {
     try {
-      const data = await axios.get("/api/auth/check");
+      const { data } = await axios.get("/api/auth/check");
 
       if (data.success) {
         setAuthUser(data.user);
@@ -106,7 +107,7 @@ export const AuthProvider = ({ children }) => {
     socket,
     login,
     logout,
-    updateProfile
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

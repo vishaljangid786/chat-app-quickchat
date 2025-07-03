@@ -1,17 +1,33 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import assets from "../assets/assets";
+import { AuthContext } from "../../context/AuthContext";
 
 const ProfilePage = () => {
+  const { authUser, updateProfile } = useContext(AuthContext);
+
   const [selectedImage, setSelectedImage] = useState(null);
   const navigate = useNavigate();
-  const [name, setName] = useState("Martin Johnson");
-  const [bio, setBio] = useState("Hi everyone i'm using quickchat.");
+  const [name, setName] = useState(authUser.fullName);
+  const [bio, setBio] = useState(authUser.bio);
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate("/");
+    if (!selectedImage) {
+      await updateProfile({ fullName: name, bio });
+      navigate("/");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(selectedImage);
+    reader.onload = async () => {
+      const base64Image = reader.result;
+      await updateProfile({ profilePic: base64Image, fullName: name, bio });
+    };
+    navigate('/')
   };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-no-repeat bg-cover">
       <div className="flex items-center justify-between w-5/6 max-w-2xl text-gray-300 border-2 border-gray-600 rounded-lg backdrop-blur-2xl max-sm:flex-col-reverse ">
@@ -65,12 +81,11 @@ const ProfilePage = () => {
         </form>
         <img
           src={assets.logo_icon}
-          className="mx-10 rounded-full max-w-44 aspect-square max-sm:mt-10"
+          className={`mx-10 rounded-full max-w-44 aspect-square max-sm:mt-10 ${selectedImage && "rounded-full"}`}
           alt=""
         />
       </div>
     </div>
   );
 };
-
 export default ProfilePage;

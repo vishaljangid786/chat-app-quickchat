@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import assets from "../assets/assets";
+import { AuthContext } from "../../context/AuthContext";
 
 const LoginPage = () => {
   const [currState, setCurrState] = useState("sign up");
@@ -8,14 +9,32 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [bio, setBio] = useState("");
   const [isDataSubmitted, setIsDataSubmitted] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [termsError, setTermsError] = useState("");
+
+  const { login } = useContext(AuthContext);
 
   const onSubmitHandler = (e) => {
     e.preventDefault();
-    
+
+    if (!acceptedTerms) {
+      setTermsError("Please accept terms and conditions.");
+      return;
+    } else {
+      setTermsError("");
+    }
+
     if (currState === "sign up" && !isDataSubmitted) {
       setIsDataSubmitted(true);
       return;
-    } 
+    }
+
+    login(currState === "sign up" ? "signup" : "login", {
+      fullName,
+      email,
+      password,
+      bio,
+    });
   };
 
   return (
@@ -77,16 +96,25 @@ const LoginPage = () => {
             value={bio}></textarea>
         )}
 
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <input
+            type="checkbox"
+            name=""
+            id=""
+            checked={acceptedTerms}
+            onChange={() => setAcceptedTerms((prev) => !prev)}
+          />
+          <p>Agree to the terms of use & privacy policy.</p>
+        </div>
+        {termsError && (
+          <p className="mb-2 -mt-4 text-xs text-red-500">{termsError}</p>
+        )}
+
         <button
           type="submit"
           className="py-3 text-white rounded-md cursor-pointer bg-gradient-to-r from-purple-400 to-violet-600">
           {currState === "sign up" ? "Create Account" : "Login Now"}
         </button>
-
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <input type="checkbox" name="" id="" />
-          <p>Agree to the terms of use & privacy policy.</p>
-        </div>
 
         <div className="flex flex-col gap-2">
           {currState === "sign up" ? (

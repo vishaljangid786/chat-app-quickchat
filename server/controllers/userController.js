@@ -31,11 +31,11 @@ export const signup = async (req, res) => {
       profilePic,
       bio,
     });
+    // Save user to database
+    await newUser.save();
 
     const token = generateToken(newUser._id);
 
-    // Save user to database
-    await newUser.save();
     res.json({
       success: true,
       message: "User created successfully",
@@ -63,16 +63,16 @@ export const login = async (req, res) => {
     if (!isPasswordCorrect) {
       return res.json({ success: false, message: "Invalid Credentials" });
     }
-    const token = generateToken(newUser._id);
 
-    // Save user to database
-    await newUser.save();
+    const token = generateToken(userData._id); // Fixed
+
     res.json({
       success: true,
-      message: "User loggedin successfully",
+      message: "User logged in successfully",
       userData,
       token,
     });
+    
   } catch (error) {
     console.error("Error during login:", error.message);
     res.json({
@@ -81,7 +81,6 @@ export const login = async (req, res) => {
     });
   }
 };
-
 // controller to check if user is authenticated
 export const checkAuth = (req, res) => {
   res.json({
